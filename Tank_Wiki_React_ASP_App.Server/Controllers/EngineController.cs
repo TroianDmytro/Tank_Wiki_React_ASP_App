@@ -20,7 +20,7 @@ namespace TankWiki.Controllers
         public async Task<IActionResult> Get()
         {
             return Ok(await _dbContext.Engines
-                .Include(t => t.TankEngines)
+                .Include(t => t.TankEngines )
                 .ThenInclude(t => t.Tank)
                 .Select(e => new EngineDTO(e)
                 {
