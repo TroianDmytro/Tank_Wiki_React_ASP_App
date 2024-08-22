@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TankWiki.Models;
 using Microsoft.EntityFrameworkCore;
-using TankWiki.DTO;
+using Tank_Wiki_React_ASP_App.Server.DTO;
+using Tank_Wiki_React_ASP_App.Server.Models;
 
-namespace TankWiki.Controllers
+namespace Tank_Wiki_React_ASP_App.Server.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     public class NationController : ControllerBase
     {
-        private readonly MySqlDBContext _dbContext;
-        public NationController(MySqlDBContext dBContext) => _dbContext = dBContext;
+        private readonly db_TankWikiContext _dbContext;
+        public NationController(db_TankWikiContext dBContext) => _dbContext = dBContext;
 
         [HttpGet]
         public async Task<IActionResult> Get()
@@ -28,9 +28,9 @@ namespace TankWiki.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            Nations? nation = await _dbContext.Nations.Include(n=>n.Tanks).FirstOrDefaultAsync(n=>n.NationId==id);
+            Nation? nation = await _dbContext.Nations.Include(n => n.Tanks).FirstOrDefaultAsync(n => n.NationId == id);
 
-            if(nation == null) return NotFound("Nation not found");
+            if (nation == null) return NotFound("Nation not found");
 
             NationDTO nationDTO = new NationDTO(nation)
             {
@@ -45,7 +45,7 @@ namespace TankWiki.Controllers
         {
             if (!string.IsNullOrEmpty(nation))
             {
-                Nations newNation = new Nations();
+                Nation newNation = new Nation();
                 newNation.NationName = nation;
 
                 await _dbContext.Nations.AddAsync(newNation);
@@ -60,10 +60,10 @@ namespace TankWiki.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, string nationName)
         {
-            Nations? nation = await _dbContext.Nations.FindAsync(id);
+            Nation? nation = await _dbContext.Nations.FindAsync(id);
             if (nation == null) return NotFound("Nation not found.");
 
-            nation.NationName = string.IsNullOrEmpty(nationName)?nation.NationName:nationName;
+            nation.NationName = string.IsNullOrEmpty(nationName) ? nation.NationName : nationName;
 
             _dbContext.Nations.Update(nation);
             await _dbContext.SaveChangesAsync();
@@ -74,7 +74,7 @@ namespace TankWiki.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _dbContext.Nations.Where(n=>n.NationId==id).ExecuteDeleteAsync();
+            await _dbContext.Nations.Where(n => n.NationId == id).ExecuteDeleteAsync();
             await _dbContext.SaveChangesAsync();
 
             return Ok("Delete nation.");

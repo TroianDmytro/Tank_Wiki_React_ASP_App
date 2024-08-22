@@ -9,11 +9,6 @@ namespace Tank_Wiki_React_ASP_App.Server.Models;
 
 public partial class db_TankWikiContext : DbContext
 {
-    //MySqlDBContext 
-    public db_TankWikiContext()
-    {
-    }
-
     public db_TankWikiContext(DbContextOptions<db_TankWikiContext> options)
         : base(options)
     {
@@ -36,6 +31,7 @@ public partial class db_TankWikiContext : DbContext
     public virtual DbSet<TankType> TankTypes { get; set; }
 
     public virtual DbSet<Turret> Turrets { get; set; }
+    public DbSet<Picture> Pictures { get; set; }
 
     ////////////////////////////////  ModelOneToMany
     public DbSet<TurretGun> TurretGuns { get; set; }
@@ -43,118 +39,130 @@ public partial class db_TankWikiContext : DbContext
     public DbSet<TankEngine> TankEngines { get; set; }
     public DbSet<TankSuspension> TankSuspensions { get; set; }
     public DbSet<TankRadio> TankRadios { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=database-1.c1em8wg8ghmk.eu-central-1.rds.amazonaws.com,1433;Initial Catalog=db_TankWiki;User ID=IronFalcon;Password=Plok1993;Encrypt=False");
+    public DbSet<TankPicture> TankPictures { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.UseCollation("Cyrillic_General_CI_AS");
+        
+        /////////////////////////// Tank
+        modelBuilder.Entity<Tank>()
+            .HasOne(t => t.TankType)
+            .WithMany(tt => tt.Tanks)
+            .HasForeignKey(t => t.TypeId);
 
-        modelBuilder.Entity<Armor>(entity =>
-        {
-            entity.HasIndex(e => e.TankId, "IX_Armors_TankId")
-                .IsUnique()
-                .HasFilter("([TankId] IS NOT NULL)");
+        /// // Визначення відношення один-до-багатьох між Nation та Tank
+        modelBuilder.Entity<Tank>()
+            .HasOne(t => t.Nation)
+            .WithMany(n => n.Tanks)
+            .HasForeignKey(t => t.NationId);
 
-            entity.Property(e => e.Name).HasDefaultValue("");
-        });
+        modelBuilder.Entity<Tank>()
+           .HasOne(t => t.Armor)
+           .WithOne(a => a.Tank)
+           .HasForeignKey<Armor>(a => a.TankId);
 
-        modelBuilder.Entity<Engine>(entity =>
-        {
-            entity.HasMany(d => d.Tanks).WithMany(p => p.Engines)
-                .UsingEntity<Dictionary<string, object>>(
-                    "TankEngine",
-                    r => r.HasOne<Tank>().WithMany()
-                        .HasForeignKey("TankId")
-                        .OnDelete(DeleteBehavior.ClientSetNull),
-                    l => l.HasOne<Engine>().WithMany()
-                        .HasForeignKey("EngineId")
-                        .OnDelete(DeleteBehavior.ClientSetNull),
-                    j =>
-                    {
-                        j.HasKey("EngineId", "TankId");
-                        j.ToTable("TankEngines");
-                        j.HasIndex(new[] { "TankId" }, "IX_TankEngines_TankId");
-                    });
-        });
+        //////////////////////////   TankTurret
+        modelBuilder.Entity<TankTurret>()
+           .HasKey(tg => new { tg.TurretId, tg.TankId });
 
-        modelBuilder.Entity<Radio>(entity =>
-        {
-            entity.HasMany(d => d.Tanks).WithMany(p => p.Radios)
-                .UsingEntity<Dictionary<string, object>>(
-                    "TankRadio",
-                    r => r.HasOne<Tank>().WithMany()
-                        .HasForeignKey("TankId")
-                        .OnDelete(DeleteBehavior.ClientSetNull),
-                    l => l.HasOne<Radio>().WithMany()
-                        .HasForeignKey("RadioId")
-                        .OnDelete(DeleteBehavior.ClientSetNull),
-                    j =>
-                    {
-                        j.HasKey("RadioId", "TankId");
-                        j.ToTable("TankRadios");
-                        j.HasIndex(new[] { "TankId" }, "IX_TankRadios_TankId");
-                    });
-        });
+        modelBuilder.Entity<TankTurret>()
+            .HasOne(tg => tg.Turret)
+            .WithMany(t => t.TankTurrets)
+            .HasForeignKey(tg => tg.TurretId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Suspension>(entity =>
-        {
-            entity.HasMany(d => d.Tanks).WithMany(p => p.Suspensions)
-                .UsingEntity<Dictionary<string, object>>(
-                    "TankSuspension",
-                    r => r.HasOne<Tank>().WithMany()
-                        .HasForeignKey("TankId")
-                        .OnDelete(DeleteBehavior.ClientSetNull),
-                    l => l.HasOne<Suspension>().WithMany()
-                        .HasForeignKey("SuspensionId")
-                        .OnDelete(DeleteBehavior.ClientSetNull),
-                    j =>
-                    {
-                        j.HasKey("SuspensionId", "TankId");
-                        j.ToTable("TankSuspensions");
-                        j.HasIndex(new[] { "TankId" }, "IX_TankSuspensions_TankId");
-                    });
-        });
+        modelBuilder.Entity<TankTurret>()
+            .HasOne(tg => tg.Tank)
+            .WithMany(g => g.TankTurrets)
+            .HasForeignKey(tg => tg.TankId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Turret>(entity =>
-        {
-            entity.HasMany(d => d.Guns).WithMany(p => p.Turrets)
-                .UsingEntity<Dictionary<string, object>>(
-                    "TurretGun",
-                    r => r.HasOne<Gun>().WithMany()
-                        .HasForeignKey("GunId")
-                        .OnDelete(DeleteBehavior.ClientSetNull),
-                    l => l.HasOne<Turret>().WithMany()
-                        .HasForeignKey("TurretId")
-                        .OnDelete(DeleteBehavior.ClientSetNull),
-                    j =>
-                    {
-                        j.HasKey("TurretId", "GunId");
-                        j.ToTable("TurretGuns");
-                        j.HasIndex(new[] { "GunId" }, "IX_TurretGuns_GunId");
-                    });
+        //////////////////////////   TurretGun
+        modelBuilder.Entity<TurretGun>()
+            .HasKey(tg => new { tg.TurretId, tg.GunId });
 
-            entity.HasMany(d => d.Tanks).WithMany(p => p.Turrets)
-                .UsingEntity<Dictionary<string, object>>(
-                    "TankTurret",
-                    r => r.HasOne<Tank>().WithMany()
-                        .HasForeignKey("TankId")
-                        .OnDelete(DeleteBehavior.ClientSetNull),
-                    l => l.HasOne<Turret>().WithMany()
-                        .HasForeignKey("TurretId")
-                        .OnDelete(DeleteBehavior.ClientSetNull),
-                    j =>
-                    {
-                        j.HasKey("TurretId", "TankId");
-                        j.ToTable("TankTurrets");
-                        j.HasIndex(new[] { "TankId" }, "IX_TankTurrets_TankId");
-                    });
-        });
+        modelBuilder.Entity<TurretGun>()
+            .HasOne(tg => tg.Turret)
+            .WithMany(t => t.TurretGuns)
+            .HasForeignKey(tg => tg.TurretId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        OnModelCreatingPartial(modelBuilder);
+        modelBuilder.Entity<TurretGun>()
+            .HasOne(tg => tg.Gun)
+            .WithMany(g => g.TurretGuns)
+            .HasForeignKey(tg => tg.GunId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        //////////////////////////    TankEngine
+
+        modelBuilder.Entity<TankEngine>()
+           .HasKey(te => new { te.EngineId, te.TankId });
+
+        modelBuilder.Entity<TankEngine>()
+            .HasOne(te => te.Engine)
+            .WithMany(e => e.TankEngines)
+            .HasForeignKey(te => te.EngineId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TankEngine>()
+            .HasOne(tg => tg.Tank)
+            .WithMany(g => g.TankEngines)
+            .HasForeignKey(tg => tg.TankId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        //////////////////////////   TankSuspension
+        modelBuilder.Entity<TankSuspension>()
+           .HasKey(ts => new { ts.SuspensionId, ts.TankId });
+
+        modelBuilder.Entity<TankSuspension>()
+            .HasOne(ts => ts.Suspension)
+            .WithMany(s => s.TankSuspensions)
+            .HasForeignKey(ts => ts.SuspensionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TankSuspension>()
+            .HasOne(ts => ts.Tank)
+            .WithMany(t => t.TankSuspensions)
+            .HasForeignKey(ts => ts.TankId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        //////////////////////////   TankRadio
+        modelBuilder.Entity<TankRadio>()
+           .HasKey(ts => new { ts.RadioId, ts.TankId });
+
+        modelBuilder.Entity<TankRadio>()
+            .HasOne(tr => tr.Radio)
+            .WithMany(r => r.TankRadios)
+            .HasForeignKey(tr => tr.RadioId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TankRadio>()
+            .HasOne(ts => ts.Tank)
+            .WithMany(t => t.TankRadios)
+            .HasForeignKey(ts => ts.TankId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Настройка промежуточной таблицы для Tank и Picture
+        modelBuilder.Entity<TankPicture>()
+            .HasKey(tp => new { tp.TankId, tp.PictureId });
+
+        modelBuilder.Entity<TankPicture>()
+            .HasOne(tp => tp.Tank)
+            .WithMany(t => t.TankPictures)
+            .HasForeignKey(tp => tp.TankId);
+
+        modelBuilder.Entity<TankPicture>()
+            .HasOne(tp => tp.Picture)
+            .WithMany()
+            .HasForeignKey(tp => tp.PictureId);
+
+        // Настройка связи "один к одному" между Nation и Picture
+        modelBuilder.Entity<Nation>()
+            .HasOne(n => n.Picture)
+            .WithOne()
+            .HasForeignKey<Nation>(n => n.PictureId);
+
+        base.OnModelCreating(modelBuilder);
     }
 
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

@@ -1,29 +1,31 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import './App.css';
+import ContainerImg from "./components/ContainerImg/ContainerImg"
 
-interface Forecast {
-    date: string;
-    temperatureC: number;
-    temperatureF: number;
-    summary: string;
-}
+//interface Forecast {
+//    date: string;
+//    temperatureC: number;
+//    temperatureF: number;
+//    summary: string;
+//}
 
 interface Tanks {
-    id: number,
-    name: string,
-    tier: number,
-    hitPoints: number,
-    status: boolean,
-    price: number,
-    description: string,
-    typeId: number,
-    armorId: number,
-    crew: string,
-    nationId:number
+    tankId?: number,
+    name?: string,
+    tier?: number,
+    hitPoints?: number,
+    status?: boolean,
+    price?: number,
+    description?: string,
+    typeId?: number,
+    armorId?: number,
+    crew?: string,
+    nation?: string
 }
 function App() {
     //const [forecasts, setForecasts] = useState<Forecast[]>();
-    const [getTanks, setTanks] = useState<Tanks[]>();
+    const [getTanks,setTanks] = useState<Tanks[]>();
 
     useEffect(() => {
         populateWeatherData();
@@ -41,26 +43,25 @@ function App() {
                     <th>Status</th>
                     <th>Price</th>
                     <th>Description</th>
-                    <th>Type Id</th>
-                    <th>Armor Id</th>
                     <th>Crew</th>
-                    <th>Nation Id</th>
+                    <th>Img</th>
                 </tr>
             </thead>
             <tbody>
                 {getTanks.map(tank =>
-                    <tr key={tank.id}>
+                    <tr key={tank.tankId}>
+                        <td>{tank.tankId}</td>
                         <td>{tank.name}</td>
                         <td>{tank.tier}</td>
                         <td>{tank.hitPoints}</td>
                         <td>{tank.status}</td>
                         <td>{tank.price}</td>
                         <td>{tank.description}</td>
-                        <td>{tank.typeId}</td>
                         <td>{tank.armorId}</td>
                         <td>{tank.crew}</td>
-                        <td>{tank.nationId}</td>
+                        <td>{<ContainerImg/>}</td>
                     </tr>
+                    
                 )}
             </tbody>
         </table>;
@@ -74,10 +75,12 @@ function App() {
     );
 
     async function populateWeatherData() {
-        const response = await fetch('Tanks');
-        const data = await response.json();
+        //const response = await fetch('Tanks');
+        //const data = await response.json();
         //setForecasts(data);MN
-        setTanks(data);
+        const res = (await axios.get("https://localhost:7032/Tanks"));
+        console.log(res);
+        setTanks(res.data);
     }
 }
 

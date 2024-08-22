@@ -1,4 +1,6 @@
-﻿namespace Tank_Wiki_React_ASP_App.Server.DTO
+﻿using Tank_Wiki_React_ASP_App.Server.Models;
+
+namespace Tank_Wiki_React_ASP_App.Server.DTO
 {
     public class NationDTO
     {
@@ -6,7 +8,7 @@
         public string NationName { get; set; }
         public ICollection<TankDTOTruncated> Tanks { get; set; }
 
-        public NationDTO(Nations nations)
+        public NationDTO(Nation nations)
         {
             NationId = nations.NationId;
             NationName = nations.NationName;

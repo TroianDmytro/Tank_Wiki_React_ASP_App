@@ -45,7 +45,7 @@ namespace Tank_Wiki_React_ASP_App.Server.DTO
             Crew = tank.Crew;
         }
         public TankDTO(int tankId, string name, int nationId,
-                        Nations nation, int tier, int hitPoints, bool status,
+                        Nation nation, int tier, int hitPoints, bool status,
                         long price, string description, int typeId, TankType type,
                         Armor armor, int armorId, List<string> crew)
         {

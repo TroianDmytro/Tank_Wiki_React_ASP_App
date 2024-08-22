@@ -1,19 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TankWiki.Models;
-using TankWiki.Models.ModelTank;
 using Microsoft.EntityFrameworkCore;
-using TankWiki.DTO;
+using Tank_Wiki_React_ASP_App.Server.DTO;
+using Tank_Wiki_React_ASP_App.Server.Models;
 
 
-namespace TankWiki.Controllers
+
+namespace Tank_Wiki_React_ASP_App.Server.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     public class GunController : ControllerBase
     {
-        private readonly MySqlDBContext _dbContext;
+        private readonly db_TankWikiContext _dbContext;
 
-        public GunController(MySqlDBContext dBContext) => _dbContext = dBContext;
+        public GunController(db_TankWikiContext dBContext) => _dbContext = dBContext;
 
         [HttpGet]
         public async Task<IActionResult> Get()
@@ -105,7 +105,7 @@ namespace TankWiki.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _dbContext.Guns.Where(g=>g.GunId==id).ExecuteDeleteAsync();
+            await _dbContext.Guns.Where(g => g.GunId == id).ExecuteDeleteAsync();
             await _dbContext.SaveChangesAsync();
 
             return Ok();

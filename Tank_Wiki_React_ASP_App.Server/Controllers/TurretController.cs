@@ -1,20 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
-using TankWiki.DTO;
-using TankWiki.Models;
-using TankWiki.Models.ModelOneToMany;
-using TankWiki.Models.ModelTank;
+using Tank_Wiki_React_ASP_App.Server.DTO;
+using Tank_Wiki_React_ASP_App.Server.Models;
 
-namespace TankWiki.Controllers
+
+namespace Tank_Wiki_React_ASP_App.Server.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     public class TurretController : ControllerBase
     {
-        private readonly MySqlDBContext _dbContext;
+        private readonly db_TankWikiContext _dbContext;
 
-        public TurretController(MySqlDBContext dBContext)
+        public TurretController(db_TankWikiContext dBContext)
         {
             _dbContext = dBContext;
         }
@@ -54,13 +52,13 @@ namespace TankWiki.Controllers
                                         .FirstOrDefaultAsync(t => t.TurretId == turretId);
 
             if (turret == null) return BadRequest("Turret not found.");
-          
+
             var newTurret = new TurretDTO(turret)
             {
                 Guns = turret.TurretGuns
                              .Select(gun => new GunDTO(gun.Gun))
                              .ToList(),
-                
+
                 Tanks = turret.TankTurrets
                               .Select(t => new TankDTOTruncated(t.Tank))
                               .ToList()
@@ -71,7 +69,7 @@ namespace TankWiki.Controllers
 
         [HttpPost]
         public async Task<IActionResult> PostTurret(
-                                string turretName,int tier, int turretFront, int turretSide, 
+                                string turretName, int tier, int turretFront, int turretSide,
                                 int turretRear, double turn, int overview, int weight, long price)
         {
             var turret = new Turret
@@ -104,7 +102,7 @@ namespace TankWiki.Controllers
 
             turret.TurretName = string.IsNullOrEmpty(turretName) || turretName.Equals(turret.TurretName) ?
                                                                             turret.TurretName : turretName;
-            turret.Tier =(int)( tier??turret.Tier);
+            turret.Tier = (int)(tier ?? turret.Tier);
             turret.TurretFront = (int)(turretFront ?? turret.TurretFront);
             turret.TurretSide = (int)(turretSide ?? turret.TurretSide);
             turret.TurretRear = (int)(turretRear ?? turret.TurretRear);
@@ -122,7 +120,7 @@ namespace TankWiki.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _dbContext.Turrets.Where(t=>t.TurretId == id).ExecuteDeleteAsync();
+            await _dbContext.Turrets.Where(t => t.TurretId == id).ExecuteDeleteAsync();
             await _dbContext.SaveChangesAsync();
 
             return Ok("Deleted turret.");

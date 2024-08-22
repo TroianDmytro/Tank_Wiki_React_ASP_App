@@ -1,17 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TankWiki.Models;
-using TankWiki.Models.ModelOneToMany;
+using Tank_Wiki_React_ASP_App.Server.Models;
+using Tank_Wiki_React_ASP_App.Server.Models.ModelsManyToMany;
 
-namespace TankWiki.Controllers.ControllersManyToMany
+
+namespace Tank_Wiki_React_ASP_App.Server.Controllers.ControllersManyToMany
 {
     [Route("[controller]")]
     [ApiController]
     public class TurretGunsController : ControllerBase
     {
-        private readonly MySqlDBContext _dbContext;
+        private readonly db_TankWikiContext _dbContext;
 
-        public TurretGunsController(MySqlDBContext dBContext) => _dbContext = dBContext;
+        public TurretGunsController(db_TankWikiContext dBContext) => _dbContext = dBContext;
 
         // Post: TurretGuns/Add
         [HttpPost]
@@ -49,8 +50,8 @@ namespace TankWiki.Controllers.ControllersManyToMany
         public async Task<IActionResult> UpdateGunId(int oldGunId, int newGunId)
         {
             await _dbContext.TurretGuns
-                            .Where(el=>el.GunId==oldGunId)
-                            .ExecuteUpdateAsync(g=>g.SetProperty(p=>p.GunId,newGunId));
+                            .Where(el => el.GunId == oldGunId)
+                            .ExecuteUpdateAsync(g => g.SetProperty(p => p.GunId, newGunId));
             await _dbContext.SaveChangesAsync();
 
             return Ok("Update gun id.");

@@ -1,22 +1,20 @@
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
-using TankWiki.DTO;
-using TankWiki.Models;
-using TankWiki.Models.ModelTank;
+using Tank_Wiki_React_ASP_App.Server.DTO;
+using Tank_Wiki_React_ASP_App.Server.Models;
 
-namespace TankWiki.Controllers
+namespace Tank_Wiki_React_ASP_App.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class TankController : ControllerBase
+    public class TanksController : ControllerBase
     {
 
-        private readonly MySqlDBContext _dbContext;
-        private readonly ILogger<TankController> _logger;
+        private readonly db_TankWikiContext _dbContext;
+        private readonly ILogger<TanksController> _logger;
 
-        public TankController(ILogger<TankController> logger, MySqlDBContext dBContext)
+        public TanksController(ILogger<TanksController> logger, db_TankWikiContext dBContext)
         {
             _logger = logger;
             _dbContext = dBContext;
@@ -42,7 +40,7 @@ namespace TankWiki.Controllers
                                         .Include(a => a.Armor)
                                         .ToListAsync();
 
-            var result =tanks.Select(t => new TankDTO(t)
+            var result = tanks.Select(t => new TankDTO(t)
             {
                 Engines = t.TankEngines.Select(e => new EngineDTO(e.Engine)).ToList(),
                 Radios = t.TankRadios.Select(r => new RadioDTO(r.Radio)).ToList(),
@@ -155,7 +153,7 @@ namespace TankWiki.Controllers
         [HttpDelete("{tankId}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _dbContext.Tanks.Where(t=>t.TankId==id).ExecuteDeleteAsync();
+            await _dbContext.Tanks.Where(t => t.TankId == id).ExecuteDeleteAsync();
             await _dbContext.SaveChangesAsync();
 
             return Ok("Tank delete.");

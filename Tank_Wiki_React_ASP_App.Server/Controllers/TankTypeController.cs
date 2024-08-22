@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TankWiki.Models;
+using Tank_Wiki_React_ASP_App.Server.Models;
 
-namespace TankWiki.Controllers
+
+namespace Tank_Wiki_React_ASP_App.Server.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     public class TankTypeController : ControllerBase
     {
-        private readonly MySqlDBContext _dbContext;
-        public TankTypeController(MySqlDBContext dBContext)
+        private readonly db_TankWikiContext _dbContext;
+        public TankTypeController(db_TankWikiContext dBContext)
         {
             _dbContext = dBContext;
         }
@@ -39,7 +40,7 @@ namespace TankWiki.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _dbContext.TankTypes.Where(tt=>tt.TankTypeId==id).ExecuteDeleteAsync();
+            await _dbContext.TankTypes.Where(tt => tt.TankTypeId == id).ExecuteDeleteAsync();
             await _dbContext.SaveChangesAsync();
 
             return Ok("Delete tank type.");

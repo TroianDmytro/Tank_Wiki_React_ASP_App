@@ -1,18 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TankWiki.DTO;
-using TankWiki.Models;
-using TankWiki.Models.ModelOneToMany;
-using TankWiki.Models.ModelTank;
+using Tank_Wiki_React_ASP_App.Server.DTO;
+using Tank_Wiki_React_ASP_App.Server.Models;
 
-namespace TankWiki.Controllers
+
+namespace Tank_Wiki_React_ASP_App.Server.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     public class RadioController : ControllerBase
     {
-        private readonly MySqlDBContext _dbContext;
-        public RadioController(MySqlDBContext dBContext)
+        private readonly db_TankWikiContext _dbContext;
+        public RadioController(db_TankWikiContext dBContext)
         {
             _dbContext = dBContext;
         }
@@ -89,7 +88,7 @@ namespace TankWiki.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _dbContext.Radios.Where(r=>r.RadioId==id).ExecuteDeleteAsync();
+            await _dbContext.Radios.Where(r => r.RadioId == id).ExecuteDeleteAsync();
             await _dbContext.SaveChangesAsync();
 
             return Ok();

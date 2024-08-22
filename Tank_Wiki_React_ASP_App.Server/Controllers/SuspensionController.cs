@@ -1,19 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TankWiki.DTO;
-using TankWiki.Models;
-using TankWiki.Models.ModelOneToMany;
-using TankWiki.Models.ModelTank;
+using Tank_Wiki_React_ASP_App.Server.DTO;
+using Tank_Wiki_React_ASP_App.Server.Models;
 
-namespace TankWiki.Controllers
+namespace Tank_Wiki_React_ASP_App.Server.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     public class SuspensionController : ControllerBase
     {
-        private readonly MySqlDBContext _dbContext;
-        public SuspensionController(MySqlDBContext dBContext)
+        private readonly db_TankWikiContext _dbContext;
+        public SuspensionController(db_TankWikiContext dBContext)
         {
             _dbContext = dBContext;
         }
@@ -51,7 +49,7 @@ namespace TankWiki.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post( string name, int tier, double loadLimit, int traverseSpeed,
+        public async Task<IActionResult> Post(string name, int tier, double loadLimit, int traverseSpeed,
                                                 double weight, long price)
         {
             Suspension suspension = new Suspension();
@@ -76,12 +74,12 @@ namespace TankWiki.Controllers
 
             if (susp == null) return NotFound("Suspension not found.");
 
-            susp.Name = string.IsNullOrEmpty(name)?susp.Name : name;
-            susp.Tier = (int)(tier ?? susp.Tier);
+            susp.Name = string.IsNullOrEmpty(name) ? susp.Name : name;
+            susp.Tier = tier ?? susp.Tier;
             susp.LoadLimit = (double)(loadLimit ?? susp.LoadLimit);
-            susp.TraverseSpeed = (int)(traverseSpeed ?? susp.TraverseSpeed);
+            susp.TraverseSpeed = traverseSpeed ?? susp.TraverseSpeed;
             susp.Weight = (double)(weight ?? susp.Weight);
-            susp.Price = (long)(price ?? susp.Price);
+            susp.Price = price ?? susp.Price;
 
             _dbContext.Suspensions.Update(susp);
             await _dbContext.SaveChangesAsync();
@@ -92,7 +90,7 @@ namespace TankWiki.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _dbContext.Suspensions.Where(s=>s.SuspensionId==id).ExecuteDeleteAsync();
+            await _dbContext.Suspensions.Where(s => s.SuspensionId == id).ExecuteDeleteAsync();
             await _dbContext.SaveChangesAsync();
 
             return Ok("Delete suspension");

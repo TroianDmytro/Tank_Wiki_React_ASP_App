@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Tank_Wiki_React_ASP_App.Server.Models.ModelsManyToMany;
 
 namespace Tank_Wiki_React_ASP_App.Server.Models;
 
@@ -26,7 +27,8 @@ public partial class Engine
 
     public long Price { get; set; }
 
-    [ForeignKey("EngineId")]
-    [InverseProperty("Engines")]
-    public virtual ICollection<Tank> Tanks { get; set; } = new List<Tank>();
+    //[ForeignKey("EngineId")]
+    //[InverseProperty("Engines")]
+    //public virtual ICollection<Tank> Tanks { get; set; } = new List<Tank>();
+    public List<TankEngine> TankEngines { get; set; }
 }

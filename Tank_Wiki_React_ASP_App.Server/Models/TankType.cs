@@ -16,6 +16,7 @@ public partial class TankType
     [Required]
     public string TypeMachine { get; set; }
 
-    [InverseProperty("Type")]
-    public virtual ICollection<Tank> Tanks { get; set; } = new List<Tank>();
+    //[InverseProperty("Type")]
+    //public virtual ICollection<Tank> Tanks { get; set; } = new List<Tank>();
+    public List<Tank> Tanks { get; set; } = [];
 }

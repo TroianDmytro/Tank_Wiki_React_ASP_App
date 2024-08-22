@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Tank_Wiki_React_ASP_App.Server.Models.ModelsManyToMany;
 
 namespace Tank_Wiki_React_ASP_App.Server.Models;
 
@@ -34,7 +35,8 @@ public partial class Gun
 
     public long Price { get; set; }
 
-    [ForeignKey("GunId")]
-    [InverseProperty("Guns")]
-    public virtual ICollection<Turret> Turrets { get; set; } = new List<Turret>();
+    //[ForeignKey("GunId")]
+    //[InverseProperty("Guns")]
+    //public virtual ICollection<Turret> Turrets { get; set; } = new List<Turret>();
+    public List<TurretGun> TurretGuns { get; set; } = [];// Связь многие ко многим
 }

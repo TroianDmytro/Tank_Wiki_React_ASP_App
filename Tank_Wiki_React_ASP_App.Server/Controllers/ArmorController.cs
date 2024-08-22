@@ -1,20 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using TankWiki.DTO;
-using TankWiki.Models;
-using TankWiki.Models.ModelTank;
+using Tank_Wiki_React_ASP_App.Server.DTO;
+using Tank_Wiki_React_ASP_App.Server.Models;
 
-namespace TankWiki.Controllers
+namespace Tank_Wiki_React_ASP_App.Server.Controllers
 {
     [AllowAnonymous]
     [ApiController]
     [Route("[controller]")]
     public class ArmorController : ControllerBase
     {
-        private readonly MySqlDBContext _dbContext;
-        public ArmorController(MySqlDBContext dBContext)
+        private readonly db_TankWikiContext _dbContext;
+        public ArmorController(db_TankWikiContext dBContext)
         {
             _dbContext = dBContext;
         }
@@ -68,7 +66,7 @@ namespace TankWiki.Controllers
                 HullRear = rear,
             };
 
-            if (tankId!=null && _dbContext.Tanks.Any(t=>t.TankId==tankId)) armor.TankId = tankId;
+            if (tankId != null && _dbContext.Tanks.Any(t => t.TankId == tankId)) armor.TankId = tankId;
 
             await _dbContext.Armors.AddAsync(armor);
             await _dbContext.SaveChangesAsync();
@@ -81,9 +79,9 @@ namespace TankWiki.Controllers
         {
             var armor = await _dbContext.Armors
                 .FirstOrDefaultAsync(a => a.ArmorId == id);
-            
+
             if (armor == null) return BadRequest();
-            
+
             armor.Name = string.IsNullOrEmpty(name) ? armor.Name : name;
             armor.HullFront = front == null ? armor.HullFront : (int)front;
             armor.HullSide = side == null ? armor.HullSide : (int)side;
